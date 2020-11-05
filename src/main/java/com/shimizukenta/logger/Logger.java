@@ -6,15 +6,6 @@ import java.io.IOException;
 public interface Logger extends Closeable {
 	
 	/**
-	 * Write log to file.
-	 * 
-	 * @param log
-	 * @throws IOException
-	 */
-	public void write(CharSequence log) throws IOException;
-	
-	
-	/**
 	 * Open and start logging.
 	 * 
 	 * @throws IOException
@@ -29,7 +20,7 @@ public interface Logger extends Closeable {
 	public boolean isOpen();
 	
 	/**
-	 * Returns true if loggingclosed.
+	 * Returns true if logging closed.
 	 * 
 	 * @return {@code true} if logging closed
 	 */

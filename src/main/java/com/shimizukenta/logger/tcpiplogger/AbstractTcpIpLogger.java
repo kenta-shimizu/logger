@@ -1,17 +1,25 @@
 package com.shimizukenta.logger.tcpiplogger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.shimizukenta.logger.AbstractLogger;
 
@@ -28,27 +36,40 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 		
 		super.open();
 		
-		executorLoop(() -> {
-			
-			final SocketAddress addr = config.connect();
-			
-			if ( addr != null) {
-				connect(addr);
-			}
-			
-			{
-				float v = config.reconnectSeconds();
-				long t = (long)(v * 1000.0F);
-				if ( t > 0 ) {
-					systemEcho("reconnect sleep " + v + " seconds...");
-					TimeUnit.MILLISECONDS.sleep(t);
-				}
-			}
-		});
+		this.executorLoop(this::connectingLoop);
+		this.executorService().execute(this::receivingLines);
+		this.executorLoop(this::systemEchoLoop);
+	}
+	
+	@Override
+	public void close() throws IOException {
 		
-		//TODO
-		//writing
-		//echo
+		synchronized ( this ) {
+			
+			if ( super.isClosed() ) {
+				return;
+			}
+			
+			super.close();
+		}
+	}
+	
+	private void connectingLoop() throws InterruptedException {
+		
+		final SocketAddress addr = config.connect();
+		
+		if ( addr != null) {
+			connect(addr);
+		}
+		
+		{
+			float v = config.reconnectSeconds();
+			long t = (long)(v * 1000.0F);
+			if ( t > 0 ) {
+				systemEcho("reconnect sleep " + v + " seconds...");
+				TimeUnit.MILLISECONDS.sleep(t);
+			}
+		}
 	}
 	
 	private void connect(SocketAddress addr) throws InterruptedException {
@@ -114,7 +135,7 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 						}
 					}
 				}
-
+				
 				@Override
 				public void failed(Throwable t, Void attachment) {
 					systemEcho(t);
@@ -133,9 +154,16 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 		}
 	}
 	
+	private static final byte LF = (byte)0xA;
+	private static final byte CR = (byte)0xD;
+	
 	private void reading(AsynchronousSocketChannel channel) throws InterruptedException {
 		
-		try {
+		try (
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				) {
+			
+			boolean detectCr = false;
 			
 			ByteBuffer rr = ByteBuffer.allocate(4096);
 			
@@ -148,20 +176,64 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 				try {
 					int r = f.get().intValue();
 					
+					LocalDateTime ts = LocalDateTime.now();
+					
 					if ( r < 0 ) {
 						return;
 					}
 					
+					List<byte[]> bss = new ArrayList<>();
+					
 					((Buffer)rr).flip();
 					
-					//TODO
+					while ( rr.hasRemaining() ) {
+						
+						byte b = rr.get();
+						
+						if ( b == CR ) {
+							
+							detectCr = true;
+							
+							bss.add(baos.toByteArray());
+							baos.reset();
+							
+						} else if ( b == LF ) {
+							
+							if ( detectCr ) {
+								
+								detectCr = false;
+								
+							} else {
+								
+								bss.add(baos.toByteArray());
+								baos.reset();
+							} 
+							
+						} else {
+							
+							if ( detectCr ) {
+								detectCr = false;
+							}
+							
+							baos.write(b);
+						}
+					}
 					
+					entryLines(bss, ts);
 				}
 				catch ( InterruptedException e ) {
 					f.cancel(true);
+					
+					byte[] bs = baos.toByteArray();
+					if ( bs.length > 0 ) {
+						entryLines(Collections.singletonList(bs), LocalDateTime.now());
+					}
+					
 					throw e;
 				}
 			}
+		}
+		catch ( IOException nothappened) {
 		}
 		catch ( ExecutionException e ) {
 			
@@ -179,14 +251,70 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 		}
 	}
 	
-	@Override
-	public void write(CharSequence log) throws IOException {
-		// TODO Auto-generated method stub
-
+	private void entryLines(List<byte[]> bss, LocalDateTime ts) throws InterruptedException {
+		List<String> lines = bss.stream()
+				.map(bs -> new String(bs, config.fileCharset()))
+				.collect(Collectors.toList());
+		lineQueue.put(new LinesTimestampPair(lines, ts));
 	}
 	
-	protected void systemEcho(Object o) {
+	private final BlockingQueue<LinesTimestampPair> lineQueue = new LinkedBlockingQueue<>();
+	
+	abstract protected void writeLines(LinesTimestampPair pair) throws IOException;
+	
+	private void receivingLines() {
 		
-		//TODO
+		try {
+			for ( ;; ) {
+				try {
+					writeLines(lineQueue.take());
+				}
+				catch ( IOException e ) {
+					systemEcho(e);
+				}
+			}
+		}
+		catch ( InterruptedException ignore ) {
+		}
+		
+		for ( ;; ) {
+			LinesTimestampPair pair = lineQueue.poll();
+			if ( pair == null ) {
+				break;
+			}
+			try {
+				writeLines(pair);
+			}
+			catch ( IOException e ) {
+				systemEcho(e);
+			}
+		}
 	}
+	
+	private final BlockingQueue<Object> echoQueue = new LinkedBlockingQueue<>();
+	
+	protected void systemEcho(Object o) {
+		echoQueue.offer(o);
+	}
+	
+	private void systemEchoLoop() throws InterruptedException {
+		Object o = echoQueue.take();
+		if ( config.isEcho() ) {
+			staticSystemEcho(o);
+		}
+	}
+	
+	private static final Object syncStaticSystemEcho = new Object();
+	
+	protected static void staticSystemEcho(Object o) {
+		synchronized ( syncStaticSystemEcho ) {
+			if ( o instanceof Throwable ) {
+				((Throwable) o).printStackTrace();
+			} else {
+				System.out.println(o);
+			}
+			System.out.println();
+		}
+	}
+	
 }

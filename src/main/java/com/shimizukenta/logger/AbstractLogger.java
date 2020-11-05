@@ -1,6 +1,8 @@
 package com.shimizukenta.logger;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -90,4 +92,12 @@ public abstract class AbstractLogger implements Logger {
 			return this.closed;
 		}
 	}
+	
+	protected static SocketAddress parseSocketAddress(String socketaddress) {
+		String[] ss = socketaddress.split(":", 2);
+		return new InetSocketAddress(
+				ss[0].trim(),
+				Integer.parseInt(ss[1]));
+	}
+	
 }

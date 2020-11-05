@@ -1,44 +1,27 @@
 package com.shimizukenta.logger.tcpiplogger;
 
+import java.io.Serializable;
 import java.net.SocketAddress;
-import java.nio.file.Path;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-public class AbstractTcpIpLoggerConfig {
+public abstract class AbstractTcpIpLoggerConfig implements Serializable {
 	
-	private static final float DEFAULT_RECONNECT = 10.0F;
+	private static final long serialVersionUID = 3328743966578057539L;
 	
-	private Path path;
+	private static final float DEFAULT_RECONNECT = 5.0F;
+	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+	
 	private SocketAddress connect;
 	private float reconnectSeconds;
 	private boolean isEcho;
+	private Charset fileCharset;
 	
 	public AbstractTcpIpLoggerConfig() {
-		this.path = null;
 		this.connect = null;
 		this.reconnectSeconds = DEFAULT_RECONNECT;
-		this.isEcho = false;
-	}
-	
-	/**
-	 * Returns log file path.
-	 * 
-	 * @return log file path
-	 */
-	public Path path() {
-		synchronized ( this ) {
-			return this.path;
-		}
-	}
-	
-	/**
-	 * Log file path setter.
-	 * 
-	 * @param path
-	 */
-	public void path(Path path) {
-		synchronized ( this ) {
-			this.path = path;
-		}
+		this.isEcho = true;
+		this.fileCharset = DEFAULT_CHARSET;
 	}
 	
 	/**
@@ -104,6 +87,28 @@ public class AbstractTcpIpLoggerConfig {
 	public void isEcho(boolean f ) {
 		synchronized ( this ) {
 			this.isEcho = f;
+		}
+	}
+	
+	/**
+	 * Logging-file-charset setter
+	 * 
+	 * @param charset of logging-file
+	 */
+	public void fileCharset(Charset charset) {
+		synchronized ( this ) {
+			this.fileCharset = charset;
+		}
+	}
+	
+	/**
+	 * Returns logging-file-charset.
+	 * 
+	 * @return logging-file-charset
+	 */
+	public Charset fileCharset() {
+		synchronized ( this ) {
+			return this.fileCharset;
 		}
 	}
 }
