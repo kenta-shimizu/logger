@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.format.DateTimeFormatter;
 
 /**
  * This class is Simple TCP/IP Logger, connect to such TELNET.
@@ -28,6 +29,10 @@ public class SimpleTcpIpLogger extends AbstractTcpIpLogger {
 	public void open() throws IOException {
 		
 		synchronized ( this ) {
+			
+			if ( isClosed() ) {
+				throw new IOException("Already closed");
+			}
 			
 			if ( isOpen() ) {
 				throw new IOException("Already opened");
@@ -83,7 +88,17 @@ public class SimpleTcpIpLogger extends AbstractTcpIpLogger {
 
 	@Override
 	protected void writeLines(LinesTimestampPair pair) throws IOException {
+		
+		final String ts;
+		
+		if ( config.addTimestampToLine() ) {
+			ts = pair.timestamp().format(config.lineTimestampFormatter()) + " ";
+		} else {
+			ts = "";
+		}
+		
 		for ( String line : pair.lines() ) {
+			writer.write(ts);
 			writer.write(line);
 			writer.newLine();
 		}
@@ -107,6 +122,14 @@ public class SimpleTcpIpLogger extends AbstractTcpIpLogger {
 				} else if ( key.equalsIgnoreCase("--connect") ) {
 					
 					config.connect(parseSocketAddress(v));
+					
+				} else if ( key.equalsIgnoreCase("--add-line-timestamp") ) {
+					
+					config.addTimestampToLine(Boolean.parseBoolean(v));
+					
+				} else if ( key.equalsIgnoreCase("--line-timestamp-format") ) {
+					
+					config.lineTimestampFormatter(DateTimeFormatter.ofPattern(v));
 					
 				} else if ( key.equalsIgnoreCase("--echo") ) {
 					

@@ -310,10 +310,10 @@ public abstract class AbstractTcpIpLogger extends AbstractLogger implements TcpI
 		synchronized ( syncStaticSystemEcho ) {
 			if ( o instanceof Throwable ) {
 				((Throwable) o).printStackTrace();
+				System.out.println();
 			} else {
 				System.out.println(o);
 			}
-			System.out.println();
 		}
 	}
 	

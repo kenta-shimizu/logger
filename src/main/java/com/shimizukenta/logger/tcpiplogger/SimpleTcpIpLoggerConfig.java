@@ -1,6 +1,7 @@
 package com.shimizukenta.logger.tcpiplogger;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class SimpleTcpIpLoggerConfig extends AbstractTcpIpLoggerConfig {
 	
@@ -31,7 +32,8 @@ public class SimpleTcpIpLoggerConfig extends AbstractTcpIpLoggerConfig {
 	 */
 	public void path(Path path) {
 		synchronized ( this ) {
-			this.path = path;
+			this.path = Objects.requireNonNull(path);
 		}
 	}
+	
 }

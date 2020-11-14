@@ -20,13 +20,17 @@ public abstract class AbstractLogger implements Logger {
 	}
 	
 	protected void executorLoop(InterruptableRunnable r) {
-		try {
-			for ( ;; ) {
-				r.run();
+		
+		executorService().execute(() -> {
+			
+			try {
+				for ( ;; ) {
+					r.run();
+				}
 			}
-		}
-		catch ( InterruptedException ignore ) {
-		}
+			catch ( InterruptedException ignore ) {
+			}
+		});
 	}
 	
 	private boolean opened;
