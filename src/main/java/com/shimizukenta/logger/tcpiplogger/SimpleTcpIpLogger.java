@@ -102,6 +102,10 @@ public class SimpleTcpIpLogger extends AbstractTcpIpLogger {
 			writer.write(line);
 			writer.newLine();
 		}
+		
+		writer.flush();
+		
+		systemEcho("wrote lines: " + pair.lines().size());
 	}
 	
 	public static void main(String[] args) {
