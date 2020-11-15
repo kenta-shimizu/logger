@@ -38,13 +38,18 @@ public class SimpleTcpIpLogger extends AbstractTcpIpLogger {
 				throw new IOException("Already opened");
 			}
 			
-			Path path = config.path();
-			if ( path == null ) {
+			Path filepath = config.path();
+			if ( filepath == null ) {
 				throw new IOException("file-path not setted");
 			}
 			
+			if ( ! Files.exists(filepath) ) {
+				Path parentpath = filepath.getParent();
+				Files.createDirectories(parentpath);
+			}
+			
 			this.writer = Files.newBufferedWriter(
-					path,
+					filepath,
 					config.fileCharset(),
 					StandardOpenOption.WRITE,
 					StandardOpenOption.CREATE,

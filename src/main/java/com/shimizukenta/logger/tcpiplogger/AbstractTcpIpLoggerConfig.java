@@ -15,7 +15,7 @@ public abstract class AbstractTcpIpLoggerConfig implements Serializable {
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 	
 //	private static final DateTimeFormatter DEFAULT_LINE_TIMESTAMP_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-	private static final DateTimeFormatter DEFAULT_LINE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS");
+	private static final DateTimeFormatter DEFAULT_LINE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 	
 	private SocketAddress connect;
 	private float reconnectSeconds;

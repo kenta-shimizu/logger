@@ -66,6 +66,10 @@ public class TimestampLineLimitTcpIpLogger extends AbstractLineLimitTcpIpLogger 
 					
 					config.isEcho(Boolean.parseBoolean(v));
 					
+				} else if ( key.equalsIgnoreCase("--line-limit") ) {
+					
+					config.lineLimit(Integer.parseInt(v));
+					
 				} else if ( key.equalsIgnoreCase("--path-full-timestamp") ) {
 					
 					config.fullTimestampFormat(DateTimeFormatter.ofPattern(v));

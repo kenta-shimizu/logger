@@ -87,15 +87,20 @@ public abstract class AbstractLineLimitTcpIpLogger extends AbstractTcpIpLogger {
 				w.write(line);
 				w.newLine();
 				
+				++ this.lineCount;
+				
+				systemEcho("wrote line: " + this.lineCount);
+				
 				int limit = config.lineLimit();
 				if ( limit > 0 ) {
-					++ this.lineCount;
 					if ( this.lineCount >= limit ) {
 						this.lineCount = 0;
 						closeWriter();
 					}
 				}
 			}
+			
+			getWriter(pair).flush();
 		}
 	}
 	
