@@ -9,10 +9,8 @@
  * @author kenta-shimizu
  *
  */
-module com.shimizukenta.secs {
+module com.shimizukenta.logger {
 	exports com.shimizukenta.logger;
 	exports com.shimizukenta.logger.tcpiplogger;
 	exports com.shimizukenta.logger.jsoncommunicatorlogger;
-	requires transitive com.shimizukenta.jsonhub;	
-	requires transitive com.shimizukenta.jsoncommunicator;
 }

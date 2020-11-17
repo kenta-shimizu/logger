@@ -14,7 +14,7 @@ set ADD_TIMESTAMP=--add-line-timestamp true
 
 set ISECHO=--echo true
 
-set PATH_FULL=--path-full-numbering ./log_%%04d/log_&&04d.log
+set PATH_FULL=--path-full-numbering ./log_%%04d/log_%%04d.log
 set PATH_PREFIX=--path-prefix-numbering ./log/log_
 set PATH_SUFFIX=--path-suffix-numbering .log
 set PATH_TIMESTAMP=--path-numbering-format %%06d
