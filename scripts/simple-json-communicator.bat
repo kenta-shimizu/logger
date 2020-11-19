@@ -3,7 +3,7 @@ cd /d %~dp0
 
 rem Timestamp
 
-set PATH_BIN="./../exports/Logger.jar"
+set PATH_BIN="./../Export.jar"
 set MAIN_CLASS=com.shimizukenta.logger.jsoncommunicatorlogger.SimpleJsonCommunicatorLogger
 
 set CONNECT=--connect 127.0.0.1:10000
