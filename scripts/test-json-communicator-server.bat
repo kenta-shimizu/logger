@@ -1,10 +1,10 @@
 @echo off
 cd /d %~dp0
 
-rem TestServer
+rem TestJsonCommunicatorServer
 
 set PATH_BIN="./../exports/TestServer.jar"
-set MAIN_CLASS=testserver.TestServer
+set MAIN_CLASS=testserver.TestJsonCommunicatorServer
 
 java -cp %PATH_BIN% %MAIN_CLASS%
 

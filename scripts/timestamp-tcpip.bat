@@ -14,10 +14,10 @@ set ADD_TIMESTAMP=--add-line-timestamp true
 
 set ISECHO=--echo true
 
-set PATH_FULL=--path-full-timestamp './log_'yyyyMMdd'/log_'yyyyMMddHHmmssSS'.log'
+set PATH_FULL=--path-full-timestamp './log_'uuuuMMdd'/log_'uuuuMMddHHmmssSS'.log'
 set PATH_PREFIX=--path-prefix-timestamp ./log/log_
 set PATH_SUFFIX=--path-suffix-timestamp .log
-set PATH_TIMESTAMP=--path-timestamp-format yyyyMMddHHmmssSSS
+set PATH_TIMESTAMP=--path-timestamp-format uuuuMMddHHmmssSSS
 
 java -cp %PATH_BIN% %MAIN_CLASS% ^
 %CONNECT% ^

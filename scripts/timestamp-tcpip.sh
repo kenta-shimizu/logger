@@ -5,10 +5,10 @@ path_jar="./../Export.jar"
 
 main_class="com.shimizukenta.logger.tcpiplogger.TimestampLineLimitTcpIpLogger"
 
-path_full="--path-full-timestamp './log_'yyyyMMdd'/log_'yyyyMMddHHmmssSS'.log'"
+path_full="--path-full-timestamp './log_'uuuuMMdd'/log_'uuuuMMddHHmmssSS'.log'"
 #path_prefix="--path-prefix-timestamp ./log/log_"
 #path_suffix="--path-suffix-timestamp .log"
-#path_timestamp="--path-timestamp-format yyyyMMddHHmmssSS"
+#path_timestamp="--path-timestamp-format uuuuMMddHHmmssSS"
 
 connect="--connect 127.0.0.1:23000"
 

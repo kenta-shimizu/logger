@@ -21,20 +21,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class TestServer implements Closeable {
+public class TestTcpIpServer implements Closeable {
 	
 	public static void main(String[] args) {
 		
 		SocketAddress addr = new InetSocketAddress("127.0.0.1", 23000);
 		
 		try (
-				TestServer inst = new TestServer(addr);
+				TestTcpIpServer inst = new TestTcpIpServer(addr);
 				) {
 			
 			inst.open();
 			
-			synchronized ( TestServer.class ) {
-				TestServer.class.wait();
+			synchronized ( TestTcpIpServer.class ) {
+				TestTcpIpServer.class.wait();
 			}
 		}
 		catch ( InterruptedException ignore ) {
@@ -53,7 +53,7 @@ public class TestServer implements Closeable {
 	private final Collection<AsynchronousSocketChannel> channels = new CopyOnWriteArrayList<>();
 	private final SocketAddress bindAddr;
 	
-	private TestServer(SocketAddress addr) {
+	private TestTcpIpServer(SocketAddress addr) {
 		this.bindAddr = addr;
 	}
 	
