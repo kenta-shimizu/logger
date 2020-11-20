@@ -3,7 +3,7 @@ cd /d %~dp0
 
 rem Timestamp
 
-set PATH_BIN="./../Export.jar"
+set PATH_BIN="./../Logger.jar"
 set MAIN_CLASS=com.shimizukenta.logger.tcpiplogger.TimestampLineLimitTcpIpLogger
 
 set CONNECT=--connect 127.0.0.1:23000

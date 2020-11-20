@@ -3,7 +3,7 @@
 path_src="src/main/java/com"
 path_test="src/test"
 path_bin="bin"
-path_export_jar="Export.jar"
+path_export_jar="Logger.jar"
 version="8"
 
 # remove bin files
@@ -18,10 +18,10 @@ javac -d ${path_bin} \
 $(find ${path_src} -name "*.java")
 
 # compile-test
-javac -d ${path_bin} \
---class-path ${path_bin} \
---release ${version} \
-$(find ${path_test} -name "*.java")
+#javac -d ${path_bin} \
+#--class-path ${path_bin} \
+#--release ${version} \
+#$(find ${path_test} -name "*.java")
 
 
 # jar

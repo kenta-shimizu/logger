@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #path_jar="/path/to/jar.jar"
-path_jar="./../Export.jar"
+path_jar="./../Logger.jar"
 
 main_class="com.shimizukenta.logger.tcpiplogger.TimestampLineLimitTcpIpLogger"
 
